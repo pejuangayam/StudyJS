@@ -2,21 +2,26 @@
 
 import { Typography, TextField, Button, Container, RadioGroup, Radio, FormControl, FormControlLabel, FormLabel, FormGroup } from "@mui/material";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function InputForm() {
-    const [firstname, setFirstName] = useState('');
+    const router = useRouter()
+    const [firstName, setFirstName] = useState('');
     const [category, setCategory] = useState('Math');
-    const [SubmittedData, setSubmittedData] = useState<{ me: string; subject: string; } | null>(null);
+    const [submittedData, setSubmittedData] = useState<{ name: string; subject: string; } | null>(null);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        console.log("Form Submitted:", { firstname, category });
-
-        setSubmittedData({
-            name: firstname,
-            subject: category
-        });
+        if (firstName && category) {
+            fetch('http://localhost:8000/notes', {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify({ firstName, category })
+            }).then(() => router.push('/Notes'))
+        }
     };
 
     return (
@@ -26,7 +31,7 @@ export default function InputForm() {
             >
                 Create a New Form
             </Typography>
-            <form noValidate autoComplete="off">
+            <form noValidate autoComplete="off" onSubmit={handleSubmit}>
                 <TextField
                     label="First Name"
                     variant="filled"
@@ -34,16 +39,16 @@ export default function InputForm() {
                     required
                     fullWidth
                     margin="normal"
-                    value={firstname}
-                    onChange={(e) => setFirsName(e.target.value)}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                 />
 
                 <FormGroup>
                     <FormLabel>Subjects</FormLabel>
                     <RadioGroup value={category} onChange={(e) => setCategory(e.target.value)}>
-                        <FormControlLabel value="Math" control={<Radio />} label="Math" />
-                        <FormControlLabel value="AI" control={<Radio />} label="AI" />
-                        <FormControlLabel value="Web" control={<Radio />} label="Web" />
+                        <FormControlLabel value="math" control={<Radio />} label="Math" />
+                        <FormControlLabel value="ai" control={<Radio />} label="Ai" />
+                        <FormControlLabel value="web" control={<Radio />} label="Web" />
                     </RadioGroup>
                 </FormGroup>
 
